@@ -2,6 +2,7 @@ package ru.practicum.events.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ExploreDateTimeFormatter;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.enums.SortedEvent;
@@ -13,12 +14,11 @@ import ru.practicum.exception.ErrorRequestException;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.requests.enums.StatusRequest;
-import ru.practicum.requests.model.VerifyRequest;
+import ru.practicum.requests.model.ConfirmedRequest;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.stats_service.StatService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class PublicEventServiceImpl implements PublicService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
@@ -38,6 +38,7 @@ public class PublicEventServiceImpl implements PublicService {
     private final StatService statService;
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getByPublicList(EventParamsFiltDto paramsDto, HttpServletRequest request) {
         EventParamsFilt params = convertInputParams(paramsDto);
         List<Event> events = eventRepository.publicSearch(params);
@@ -49,6 +50,7 @@ public class PublicEventServiceImpl implements PublicService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getByPublic(Long eventId, HttpServletRequest request) {
         Event event = getEventIfExists(eventId);
         boolean published = (event.getState() == StateEvent.PUBLISHED);
@@ -107,9 +109,9 @@ public class PublicEventServiceImpl implements PublicService {
 
     private void getConfirmedRequest(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<VerifyRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
+        List<ConfirmedRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
         Map<Long, Long> confirmedRequestsMap = confirmedRequests.stream()
-                .collect(Collectors.toMap(VerifyRequest::getEventId, VerifyRequest::getCount));
+                .collect(Collectors.toMap(ConfirmedRequest::getEventId, ConfirmedRequest::getCount));
         events.forEach(event -> event.setConfirmedRequests(confirmedRequestsMap.getOrDefault(event.getId(), 0L)));
     }
 

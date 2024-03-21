@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
-public class ErrorHandler {
+public class ErrorHandlerStat {
     @ExceptionHandler(value = {ConstraintViolationException.class,
             MethodArgumentNotValidException.class,
             MissingPathVariableException.class,
-            MissingServletRequestParameterException.class,
             ErrorRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handle(Exception e) throws Exception {
@@ -28,11 +27,11 @@ public class ErrorHandler {
         throw e;
     }
 
-    /*@ExceptionHandler
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
         return new ErrorResponse("Validation error: ", e.getMessage());
-    }*/
+    }
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

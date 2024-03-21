@@ -43,5 +43,4 @@ public class EventDto implements Comparable<EventDto> {
     public int compareTo(EventDto other) {
         return this.id.compareTo(other.id);
     }
-
 }

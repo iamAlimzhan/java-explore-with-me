@@ -44,8 +44,8 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public List<CompilationDto> getAll(Boolean pinned, Integer from, Integer size) {
-        Page<Compilation> compilationPage;
-        if (pinned = null) {
+        Page<Compilation> compilationPage = null;
+        if (pinned == null) {
             compilationPage = compilationRepository.findAll(PageRequest.of(from / size, size));
         } else {
             compilationPage = compilationRepository.findAllByPinned(pinned, PageRequest.of(from / size, size));

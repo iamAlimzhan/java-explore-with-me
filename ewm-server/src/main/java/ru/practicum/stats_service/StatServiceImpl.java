@@ -26,14 +26,14 @@ public class StatServiceImpl implements StatService {
     private final StatsClient statsClient;
     private final EventRepository repository;
     private final ObjectMapper objectMapper;
-    private String app;
+    private String app = "ewm-service";
 
     @Override
     public void createHit(HttpServletRequest request) {
         String uri = request.getRequestURI();
         String ip = request.getRemoteAddr();
-        LocalDateTime timestamp = LocalDateTime.now();
-        statsClient.postHits(app, uri, ip, timestamp);
+        final LocalDateTime START_EPOCH = LocalDateTime.of(2000, 1, 1, 0, 0);
+        statsClient.postHits(app, uri, ip, START_EPOCH);
     }
 
     @Override
@@ -43,7 +43,8 @@ public class StatServiceImpl implements StatService {
         if (event.getState() != StateEvent.PUBLISHED) {
             return 0L;
         }
-        LocalDateTime start = event.getPublishedOn();
+        //LocalDateTime start = event.getPublishedOn();
+        LocalDateTime start = LocalDateTime.of(2000, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.now();
         String uri = "/events/" + event.getId();
         ResponseEntity<Object> response = statsClient.getStats(start, end, List.of(uri), true);
@@ -75,7 +76,9 @@ public class StatServiceImpl implements StatService {
         }
         ResponseEntity<Object> response = statsClient.getStats(start, end, uriList, true);
         if (response.getStatusCode() == HttpStatus.OK) {
-            List<Stats> stats = objectMapper.convertValue(response.getBody(), TYPE_REFERENCE_LIST);
+            TypeReference<List<Stats>> referese = new TypeReference<>() {
+            };
+            List<Stats> stats = objectMapper.convertValue(response.getBody(), referese);
             stats.forEach((stat) ->
                     uriMap.get(stat.getUri()).setViews(stat.getHits()));
         }

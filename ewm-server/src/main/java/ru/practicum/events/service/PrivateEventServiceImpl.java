@@ -3,6 +3,7 @@ package ru.practicum.events.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.events.dto.*;
@@ -22,15 +23,14 @@ import ru.practicum.requests.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.enums.StatusRequest;
 import ru.practicum.requests.mapper.RequestMapper;
+import ru.practicum.requests.model.ConfirmedRequest;
 import ru.practicum.requests.model.ParticipationRequest;
-import ru.practicum.requests.model.VerifyRequest;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.stats_service.StatService;
 import ru.practicum.users.enums.StateUser;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class PrivateEventServiceImpl implements PrivateService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
@@ -53,6 +53,7 @@ public class PrivateEventServiceImpl implements PrivateService {
     private final StatService statService;
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getByPrivateList(Long userId, Integer from, Integer size) {
         getUserIfExists(userId);
         int page = from / size;
@@ -63,6 +64,7 @@ public class PrivateEventServiceImpl implements PrivateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getByPrivate(Long userId, Long eventId) {
         getUserIfExists(userId);
         Event event = getEventIfExists(eventId);
@@ -71,6 +73,7 @@ public class PrivateEventServiceImpl implements PrivateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getByPrivateRequests(Long userId, Long eventId) {
         getUserIfExists(userId);
         return requestRepository.findByEventId(eventId)
@@ -80,6 +83,7 @@ public class PrivateEventServiceImpl implements PrivateService {
     }
 
     @Override
+    @Transactional
     public EventFullDto createByPrivate(NewEventDto newEventDto, Long userId) {
         Event event = eventMapper.toEvent(newEventDto);
         User user = getUserIfExists(userId);
@@ -95,6 +99,7 @@ public class PrivateEventServiceImpl implements PrivateService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateByPrivate(UpdateEventUserRequest updateRequest, Long userId, Long eventId) {
         getUserIfExists(userId);
         Event event = getEventIfExists(eventId);
@@ -108,6 +113,7 @@ public class PrivateEventServiceImpl implements PrivateService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResultDto updateByPrivateStatus(EventRequestStatusUpdateRequestDto updateRequest,
                                                                    Long userId, Long eventId) {
         getUserIfExists(userId);
@@ -141,9 +147,9 @@ public class PrivateEventServiceImpl implements PrivateService {
 
     private void getConfirmedRequest(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<VerifyRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
+        List<ConfirmedRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
         Map<Long, Long> confirmedRequestsMap = confirmedRequests.stream()
-                .collect(Collectors.toMap(VerifyRequest::getEventId, VerifyRequest::getCount));
+                .collect(Collectors.toMap(ConfirmedRequest::getEventId, ConfirmedRequest::getCount));
         events.forEach(event -> event.setConfirmedRequests(confirmedRequestsMap.getOrDefault(event.getId(), 0L)));
     }
 

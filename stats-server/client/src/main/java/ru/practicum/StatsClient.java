@@ -15,17 +15,15 @@ import java.util.*;
 @Service
 public class StatsClient extends BaseClient {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final String HIT_PATH = "/hit";
-    private static final String STATS_PATH = "/stats";
 
     @Autowired
-    public StatsClient(@Value("${stats-service.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(serverUrl, builder);
     }
 
     public void postHits(String app, String uri, String ip, LocalDateTime timestamp) {
         HitUrl endpointHit = new HitUrl(app, uri, ip, encode(timestamp));
-        makeAndSendRequest(HttpMethod.POST, HIT_PATH, null, endpointHit);
+        makeAndSendRequest(HttpMethod.POST, "/hit", null, endpointHit);
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
@@ -47,11 +45,6 @@ public class StatsClient extends BaseClient {
     }
 
     private String encode(LocalDateTime dateTime) {
-        return dateTime.format(DATE_TIME_FORMAT);
-    }
-
-    private String encode(String date) {
-        LocalDateTime dateTime = LocalDateTime.parse(date, DATE_TIME_FORMAT);
         return dateTime.format(DATE_TIME_FORMAT);
     }
 }

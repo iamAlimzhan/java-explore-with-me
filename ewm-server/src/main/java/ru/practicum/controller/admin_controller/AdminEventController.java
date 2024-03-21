@@ -1,6 +1,7 @@
 package ru.practicum.controller.admin_controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventParamsFiltDto;
@@ -13,11 +14,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/events")
+@Slf4j
 public class AdminEventController {
     private final AdminService service;
 
     @GetMapping
     public List<EventFullDto> getByAdmin(@Valid EventParamsFiltDto params) {
+        log.info("получение по админу params: {}", params);
         return service.getByAdmin(params);
     }
 

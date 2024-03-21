@@ -2,6 +2,7 @@ package ru.practicum.events.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ExploreDateTimeFormatter;
 import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
@@ -19,11 +20,10 @@ import ru.practicum.locations.dto.LocationDto;
 import ru.practicum.locations.mapper.LocationMapper;
 import ru.practicum.locations.model.Location;
 import ru.practicum.locations.repository.LocationRepository;
-import ru.practicum.requests.model.VerifyRequest;
+import ru.practicum.requests.model.ConfirmedRequest;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.stats_service.StatService;
 
-import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class AdminEventServiceImpl implements AdminService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
@@ -47,7 +47,7 @@ public class AdminEventServiceImpl implements AdminService {
     private final StatService statService;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EventFullDto> getByAdmin(EventParamsFiltDto eventParamsFiltDto) {
         EventParamsFilt params = convertInputParams(eventParamsFiltDto);
         List<Event> events = eventRepository.adminSearch(params);
@@ -60,6 +60,7 @@ public class AdminEventServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateByAdmin(UpdateEventAdminRequest request, Long eventId) {
         Event event = getEventIfExists(eventId);
         LocalDateTime actual = event.getEventDate();
@@ -107,9 +108,9 @@ public class AdminEventServiceImpl implements AdminService {
 
     private void getConfirmedRequest(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<VerifyRequest> verifyRequests = requestRepository.findConfirmedRequest(eventIds);
-        Map<Long, Long> confirmedRequestsMap = verifyRequests.stream()
-                .collect(Collectors.toMap(VerifyRequest::getEventId, VerifyRequest::getCount));
+        List<ConfirmedRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
+        Map<Long, Long> confirmedRequestsMap = confirmedRequests.stream()
+                .collect(Collectors.toMap(ConfirmedRequest::getEventId, ConfirmedRequest::getCount));
         events.forEach(event -> event.setConfirmedRequests(confirmedRequestsMap.getOrDefault(event.getId(), 0L)));
     }
 
