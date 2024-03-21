@@ -32,8 +32,8 @@ public class StatServiceImpl implements StatService {
     public void createHit(HttpServletRequest request) {
         String uri = request.getRequestURI();
         String ip = request.getRemoteAddr();
-        final LocalDateTime START_EPOCH = LocalDateTime.of(2000, 1, 1, 0, 0);
-        statsClient.postHits(app, uri, ip, START_EPOCH);
+        LocalDateTime timestamp = LocalDateTime.now();
+        statsClient.postHits(app, uri, ip, timestamp);
     }
 
     @Override

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitsDto;
+import ru.practicum.exception.DateTimeException;
 import ru.practicum.mapper.HitsMapper;
 import ru.practicum.model.Stats;
 import ru.practicum.repository.StatsRepository;
@@ -21,8 +22,11 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<Stats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        if (end.isBefore(start)) {
+            throw new DateTimeException("Неправильный диапазон дат и времени");
+        }
         List<Stats> statsList;
-        if (uris != null) {
+        if (uris != null && !uris.isEmpty()) {
             if (unique) {
                 statsList = statsRepository.getByDistinctIpAndTimestampAfterAndTimestampBeforeAndUriIn(start, end, uris);
                 log.info("если уникальный и не null statsList = {}", statsList);
