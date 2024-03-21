@@ -51,8 +51,8 @@ public class AdminEventServiceImpl implements AdminService {
     public List<EventFullDto> getByAdmin(EventParamsFiltDto eventParamsFiltDto) {
         EventParamsFilt params = convertInputParams(eventParamsFiltDto);
         List<Event> events = eventRepository.adminSearch(params);
-        statService.getViewsList(events);
         getConfirmedRequest(events);
+        statService.getViewsList(events);
         return events.stream()
                 .map(eventMapper::toEventFullDto)
                 .sorted(getComparator(params.getSort()))

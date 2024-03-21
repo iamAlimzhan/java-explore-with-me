@@ -26,7 +26,7 @@ public class StatServiceImpl implements StatService {
     private final StatsClient statsClient;
     private final EventRepository repository;
     private final ObjectMapper objectMapper;
-    private String app = "ewm-service";
+    private String app = "ewm-server";
 
     @Override
     public void createHit(HttpServletRequest request) {
