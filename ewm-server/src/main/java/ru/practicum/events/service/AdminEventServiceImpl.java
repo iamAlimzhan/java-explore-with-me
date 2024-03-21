@@ -3,7 +3,7 @@ package ru.practicum.events.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ExploreDateTimeFormatter;
+import ru.practicum.DateTimeFormat;
 import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.enums.StateAdmin;
@@ -100,7 +100,7 @@ public class AdminEventServiceImpl implements AdminService {
     private LocalDateTime getFromStringOrSetDefault(String dateTimeString, LocalDateTime defaultValue)
             throws UnsupportedEncodingException {
         if (dateTimeString != null) {
-            return ExploreDateTimeFormatter.stringToLocalDateTime(URLDecoder.decode(dateTimeString,
+            return DateTimeFormat.stringToLocalDateTime(URLDecoder.decode(dateTimeString,
                     StandardCharsets.UTF_8));
         }
         return defaultValue;

@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
     @Mapping(target = "event", source = "event.id")
-    @Mapping(target = "created", expression = "java(ru.practicum.ExploreDateTimeFormatter.localDateTimeToString(request.getCreated()))")
+    @Mapping(target = "created", expression = "java(ru.practicum.DateTimeFormat.localDateTimeToString(request.getCreated()))")
     @Mapping(target = "requester", source = "requester.id")
     @Mapping(target = "status", source = "status")
     ParticipationRequestDto toRequestDto(ParticipationRequest request);

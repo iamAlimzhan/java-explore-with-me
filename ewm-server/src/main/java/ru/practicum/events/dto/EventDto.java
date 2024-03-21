@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.ExploreDateTimeFormatter;
+import ru.practicum.DateTimeFormat;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.events.enums.SortedEvent;
 import ru.practicum.users.dto.UserShortDto;
@@ -18,7 +18,7 @@ import java.util.Objects;
 @SuperBuilder(toBuilder = true)
 public class EventDto implements Comparable<EventDto> {
     public static final Comparator<EventDto> EVENT_DATE_COMPARATOR =
-            Comparator.comparing((EventDto eventDto) -> ExploreDateTimeFormatter
+            Comparator.comparing((EventDto eventDto) -> DateTimeFormat
                     .stringToLocalDateTime(eventDto.eventDate)).thenComparing(EventDto::getId);
     public static final Comparator<EventDto> VIEWS_COMPARATOR =
             Comparator.comparing(EventDto::getViews).thenComparing(EventDto::getId);

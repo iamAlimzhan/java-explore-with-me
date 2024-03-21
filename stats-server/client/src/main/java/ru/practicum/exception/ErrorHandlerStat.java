@@ -1,5 +1,6 @@
 package ru.practicum.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
 
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandlerStat {
     @ExceptionHandler(value = {ConstraintViolationException.class,
@@ -17,11 +19,12 @@ public class ErrorHandlerStat {
             MissingPathVariableException.class,
             ErrorRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(Exception e) throws Exception {
+    public ErrorResponse handleValidationExceptions(Exception e) throws Exception {
         if (e instanceof ConstraintViolationException ||
                 e instanceof MethodArgumentNotValidException ||
                 e instanceof MissingPathVariableException ||
                 e instanceof ErrorRequestException) {
+            log.error("Произошла ошибка валидации со статусом 400: {}", e.getMessage(), e);
             return new ErrorResponse("Ошибка валидации ", e.getMessage());
         }
         throw e;
@@ -30,18 +33,21 @@ public class ErrorHandlerStat {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
-        return new ErrorResponse("Validation error: ", e.getMessage());
+        log.error("Произошла ошибка валидации: Не указан обязательный параметр запроса со статусом 400", e);
+        return new ErrorResponse("Ошибка валидации: Не указан обязательный параметр запроса", e.getMessage());
     }
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
-        return new ErrorResponse("INTERNAL_SERVER_ERROR", e.getMessage());
+        log.error("Произошла внутренняя ошибка сервера со статусом 500: {}", e.getMessage(), e);
+        return new ErrorResponse("Внутренняя ошибка сервера", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleRuntimeException(final RuntimeException e) {
-        return new ErrorResponse("INTERNAL_SERVER_ERROR", e.getMessage());
+        log.error("Произошла внутренняя ошибка сервера со статусом 500: {}", e.getMessage(), e);
+        return new ErrorResponse("Внутренняя ошибка сервера", e.getMessage());
     }
 }

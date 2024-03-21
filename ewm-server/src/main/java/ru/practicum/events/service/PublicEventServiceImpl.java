@@ -3,7 +3,7 @@ package ru.practicum.events.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ExploreDateTimeFormatter;
+import ru.practicum.DateTimeFormat;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.enums.SortedEvent;
 import ru.practicum.events.enums.StateEvent;
@@ -101,7 +101,7 @@ public class PublicEventServiceImpl implements PublicService {
     private LocalDateTime getFromStringOrSetDefault(String dateTimeString, LocalDateTime defaultValue)
             throws UnsupportedEncodingException {
         if (dateTimeString != null) {
-            return ExploreDateTimeFormatter.stringToLocalDateTime(URLDecoder.decode(dateTimeString,
+            return DateTimeFormat.stringToLocalDateTime(URLDecoder.decode(dateTimeString,
                     StandardCharsets.UTF_8));
         }
         return defaultValue;

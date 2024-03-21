@@ -21,15 +21,10 @@ public class StatsClient extends BaseClient {
         super(serverUrl, builder);
     }
 
-    public void postHits(String app, String uri, String ip, LocalDateTime timestamp) {
-        HitUrl endpointHit = new HitUrl(app, uri, ip, encode(timestamp));
-        makeAndSendRequest(HttpMethod.POST, "/hit", null, endpointHit);
-    }
-
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         Map<String, Object> parameters = new HashMap<>();
         if (Objects.isNull(start) || Objects.isNull(end) || end.isBefore(start)) {
-            throw new ErrorRequestException("Start and end shouldn't be null, and end should be after start.");
+            throw new ErrorRequestException("Start и end не должны быть нулевыми, а end должен быть после start");
         }
         parameters.put("start", encode(start));
         parameters.put("end", encode(end));
@@ -42,6 +37,11 @@ public class StatsClient extends BaseClient {
         }
         String path = pathBuilder.toString();
         return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
+    }
+
+    public void postHits(String app, String uri, String ip, LocalDateTime timestamp) {
+        HitUrl endpointHit = new HitUrl(app, uri, ip, encode(timestamp));
+        makeAndSendRequest(HttpMethod.POST, "/hit", null, endpointHit);
     }
 
     private String encode(LocalDateTime dateTime) {

@@ -43,7 +43,6 @@ public class StatServiceImpl implements StatService {
         if (event.getState() != StateEvent.PUBLISHED) {
             return 0L;
         }
-        //LocalDateTime start = event.getPublishedOn();
         LocalDateTime start = LocalDateTime.of(2000, 1, 1, 0, 0);
         LocalDateTime end = LocalDateTime.now();
         String uri = "/events/" + event.getId();

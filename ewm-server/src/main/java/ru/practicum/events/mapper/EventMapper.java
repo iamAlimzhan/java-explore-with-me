@@ -24,16 +24,16 @@ public interface EventMapper {
     Event toEvent(NewEventDto newEventDto);
 
     @Mapping(target = "confirmedRequests", source = "confirmedRequests")
-    @Mapping(target = "createdOn", expression = "java(ru.practicum.ExploreDateTimeFormatter.localDateTimeToString(event.getEventDate()))")
-    @Mapping(target = "eventDate", expression = "java(ru.practicum.ExploreDateTimeFormatter.localDateTimeToString(event.getEventDate()))")
+    @Mapping(target = "createdOn", expression = "java(ru.practicum.DateTimeFormat.localDateTimeToString(event.getEventDate()))")
+    @Mapping(target = "eventDate", expression = "java(ru.practicum.DateTimeFormat.localDateTimeToString(event.getEventDate()))")
     @Mapping(target = "initiator", source = "initiator")
-    @Mapping(target = "publishedOn", expression = "java(ru.practicum.ExploreDateTimeFormatter.localDateTimeToString(event.getPublishedOn()))")
+    @Mapping(target = "publishedOn", expression = "java(ru.practicum.DateTimeFormat.localDateTimeToString(event.getPublishedOn()))")
     @Mapping(target = "views", source = "views")
     EventFullDto toEventFullDto(Event event);
 
     @Mapping(target = "category", source = "category")
     @Mapping(target = "confirmedRequests", ignore = true)
-    @Mapping(target = "eventDate", expression = "java(ru.practicum.ExploreDateTimeFormatter.localDateTimeToString(event.getEventDate()))")
+    @Mapping(target = "eventDate", expression = "java(ru.practicum.DateTimeFormat.localDateTimeToString(event.getEventDate()))")
     @Mapping(target = "initiator", source = "initiator")
     @Mapping(target = "views", ignore = true)
     EventShortDto toEventShortDto(Event event);
