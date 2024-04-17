@@ -12,6 +12,7 @@ public class RequestMapper {
                 .map(RequestMapper::toRequestDto)
                 .collect(Collectors.toList());
     }
+
     public static ParticipationRequestDto toRequestDto(Request request) {
         return ParticipationRequestDto.builder()
                 .id(request.getId())

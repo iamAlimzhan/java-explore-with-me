@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+
     @Override
     public UserDto create(NewUserRequest newUserRequest) {
         User existingUser = userRepository.findFirstByName(newUserRequest.getName());

@@ -6,7 +6,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.practicum.*;
+import ru.practicum.Stats;
+import ru.practicum.StatsClient;
 import ru.practicum.category.Category;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.enums.RequestStatus;
@@ -115,6 +116,7 @@ public class EventAdminServiceImpl implements EventAdminService {
         }
         return defaultDate;
     }
+
     private void updateParamsEvent(Event event, UpdateEventAdminRequest adminRequest) {
         if (Objects.nonNull(adminRequest.getAnnotation()) && !adminRequest.getAnnotation().isBlank()) {
             event.setAnnotation(adminRequest.getAnnotation());
@@ -178,6 +180,7 @@ public class EventAdminServiceImpl implements EventAdminService {
                 .setMaxResults(filtreParams.getSize())
                 .getResultList();
     }
+
     public void getStatOfViews(List<Event> events) {
         List<String> uriList = events.stream()
                 .map(event -> "/events/" + event.getId())
@@ -202,16 +205,19 @@ public class EventAdminServiceImpl implements EventAdminService {
     private List<Stats> retrieveStats(LocalDateTime start, List<String> uriList) {
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uriList, true);
         if (response.getStatusCode() == HttpStatus.OK) {
-            return objectMapper.convertValue(response.getBody(), new TypeReference<>() {});
+            return objectMapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
         }
         return Collections.emptyList();
     }
+
     private void checkDateIsAfter(LocalDateTime date, Integer currentTime) {
         LocalDateTime dateTime = LocalDateTime.now().plusHours(currentTime);
         if (date.isBefore(dateTime)) {
             throw new ErrorRequestException("Неверное время события");
         }
     }
+
     private LocalDateTime parseDateTime(String dateTimeString, LocalDateTime defaultValue) throws UnsupportedEncodingException {
         if (dateTimeString != null) {
             LocalDateTime outOfString = getOutOfString(dateTimeString, defaultValue);

@@ -81,6 +81,7 @@ public class AdminController {
                                       @Valid @RequestBody UpdateEventAdminRequest request) {
         return eventService.updateByAdmin(request, eventId);
     }
+
     @GetMapping("/users")
     public List<UserDto> get(@RequestParam(required = false) List<Long> ids,
                              @RequestParam(defaultValue = "0") Integer from,

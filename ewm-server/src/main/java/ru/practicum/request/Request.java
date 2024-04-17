@@ -3,8 +3,6 @@ package ru.practicum.request;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.enums.RequestStatus;
-import ru.practicum.event.Event;
-import ru.practicum.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class RequestServiceImpl implements RequestService{
+public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
@@ -74,16 +74,19 @@ public class RequestServiceImpl implements RequestService{
             throw new ConflictException("Запрос уже существует");
         }
     }
+
     private void checkCreatorApproveRequests(Long userId, Event event) {
         if (userId.equals(event.getInitiator().getId())) {
             throw new ConflictException("Создатель события не одобрил делать запросы к событию");
         }
     }
+
     private void checkStatusOfEvent(Event event) {
         if (!event.getState().equals(StateEvent.PUBLISHED)) {
             throw new ConflictException("Неверный статус события");
         }
     }
+
     private void checkParticipantLimit(Event event) {
         if (event.getParticipantLimit() > 0) {
             Long participants = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);

@@ -1,14 +1,13 @@
 package ru.practicum.event;
 
-import ru.practicum.enums.StateEvent;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.category.Category;
+import ru.practicum.enums.StateEvent;
 import ru.practicum.location.Location;
 import ru.practicum.user.User;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @Getter

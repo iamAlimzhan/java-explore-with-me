@@ -2,7 +2,6 @@ package ru.practicum.location;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter

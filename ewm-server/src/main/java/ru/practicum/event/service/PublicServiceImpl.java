@@ -4,18 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.DateTimeFormat;
 import ru.practicum.Stats;
 import ru.practicum.StatsClient;
-import ru.practicum.enums.EventSortEnum;
 import ru.practicum.enums.RequestStatus;
 import ru.practicum.enums.StateEvent;
 import ru.practicum.event.*;
-import ru.practicum.event.EventFiltre;
-import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.ErrorRequestException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.RequestRepository;
@@ -27,24 +23,22 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PublicServiceImpl implements PublicService{
+public class PublicServiceImpl implements PublicService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
-    @PersistenceContext
-    private EntityManager entityManager;
     private final StatsClient statsClient;
     private final EventRepository repository;
     private final ObjectMapper objectMapper;
+    @PersistenceContext
+    private EntityManager entityManager;
     private String app = "ewm-server";
 
     @Override

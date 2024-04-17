@@ -3,7 +3,7 @@ package ru.practicum.location;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LocationMapper{
+public class LocationMapper {
     public Location toLocation(LocationDto locationDto) {
         if (locationDto == null) {
             return null;

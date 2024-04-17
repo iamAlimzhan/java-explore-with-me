@@ -22,6 +22,7 @@ import java.util.List;
 public class PrivateController {
     private final EventPrivateService eventService;
     private final RequestService requestService;
+
     @GetMapping(value = "/{userId}/events")
     public List<EventShortDto> get(@PathVariable Long userId,
                                    @RequestParam(defaultValue = "0") Integer from,

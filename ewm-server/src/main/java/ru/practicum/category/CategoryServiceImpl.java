@@ -1,9 +1,7 @@
 package ru.practicum.category;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.Event;
@@ -17,9 +15,10 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
+
     @Override
     public CategoryDto create(NewCategoryDto newCatId) {
         Category category = CategoryMapper.toCategory(newCatId);
@@ -58,6 +57,7 @@ public class CategoryServiceImpl implements CategoryService{
         }
         categoryRepository.delete(category);
     }
+
     private Category checkIfExists(long catId) {
         Optional<Category> categoryOptional = categoryRepository.findById(catId);
         if (categoryOptional.isPresent()) {

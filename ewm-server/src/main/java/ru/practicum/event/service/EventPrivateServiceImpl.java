@@ -13,7 +13,6 @@ import ru.practicum.StatsClient;
 import ru.practicum.category.Category;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.enums.RequestStatus;
-import ru.practicum.enums.StateAction;
 import ru.practicum.enums.StateEvent;
 import ru.practicum.event.*;
 import ru.practicum.exception.ConflictException;
@@ -27,13 +26,15 @@ import ru.practicum.user.User;
 import ru.practicum.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class EventPrivateServiceImpl implements EventPrivateService{
+public class EventPrivateServiceImpl implements EventPrivateService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
@@ -42,6 +43,7 @@ public class EventPrivateServiceImpl implements EventPrivateService{
     private final LocationMapper locationMapper;
     private final StatsClient statsClient;
     private final ObjectMapper objectMapper;
+
     @Override
     public List<EventShortDto> getPrivateList(Long userId, Integer from, Integer size) {
         userRepository.findById(userId)
@@ -59,7 +61,8 @@ public class EventPrivateServiceImpl implements EventPrivateService{
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Юзер не найден"));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие не найдено"));;
+                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        ;
         updateConfirmedRequest(List.of(event));
         return EventMapper.toEventFullDto(event);
     }
@@ -155,6 +158,7 @@ public class EventPrivateServiceImpl implements EventPrivateService{
             throw new ErrorRequestException("Неверное время события");
         }
     }
+
     private void updateParamsEvent(Event event, UpdateEventUserRequest updateEventRequest) {
         if (updateEventRequest.getAnnotation() != null && !updateEventRequest.getAnnotation().isBlank())
             event.setAnnotation(updateEventRequest.getAnnotation());
@@ -225,10 +229,12 @@ public class EventPrivateServiceImpl implements EventPrivateService{
                     }
                 });
     }
+
     private List<Stats> retrieveStats(LocalDateTime start, List<String> uriList) {
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uriList, true);
         if (response.getStatusCode() == HttpStatus.OK) {
-            return objectMapper.convertValue(response.getBody(), new TypeReference<>() {});
+            return objectMapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
         }
         return Collections.emptyList();
     }

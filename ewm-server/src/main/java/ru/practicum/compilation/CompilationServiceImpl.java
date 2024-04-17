@@ -1,7 +1,6 @@
 package ru.practicum.compilation;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.Event;
@@ -17,9 +16,10 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class CompilationServiceImpl implements CompilationService{
+public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+
     @Override
     public CompilationDto create(NewCompilationDto newCompilationDto) {
         Set<Long> eventIds = newCompilationDto.getEvents();
@@ -32,7 +32,8 @@ public class CompilationServiceImpl implements CompilationService{
     @Override
     public CompilationDto getById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Компиляция не найдена"));;
+                .orElseThrow(() -> new NotFoundException("Компиляция не найдена"));
+        ;
         return CompilationMapper.toCompilationDto(compilation);
     }
 
@@ -50,7 +51,8 @@ public class CompilationServiceImpl implements CompilationService{
     @Override
     public CompilationDto update(Long compId, UpdateCompilationRequest updateCompRequest) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Компиляция не найдена"));;
+                .orElseThrow(() -> new NotFoundException("Компиляция не найдена"));
+        ;
         updateCompilation(compilation, updateCompRequest);
         Compilation updatedCompilation = compilationRepository.save(compilation);
         return CompilationMapper.toCompilationDto(updatedCompilation);
