@@ -32,10 +32,7 @@ import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -147,11 +144,18 @@ public class PrivateEventServiceImpl implements PrivateService {
 
     private void getConfirmedRequest(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<ConfirmedRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
-        Map<Long, Long> confirmedRequestsMap = confirmedRequests.stream()
-                .collect(Collectors.toMap(ConfirmedRequest::getEventId, ConfirmedRequest::getCount));
+        List<Object[]> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
+        Map<Long, Long> confirmedRequestsMap = new HashMap<>();
+
+        for (Object[] result : confirmedRequests) {
+            Long eventId = (Long) result[0];
+            Long count = (Long) result[1];
+            confirmedRequestsMap.put(eventId, count);
+        }
+
         events.forEach(event -> event.setConfirmedRequests(confirmedRequestsMap.getOrDefault(event.getId(), 0L)));
     }
+
 
     private Event getEventIfExists(Long eventId) {
         return eventRepository.findById(eventId)

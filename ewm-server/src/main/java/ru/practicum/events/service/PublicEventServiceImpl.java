@@ -24,6 +24,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,34 +53,42 @@ public class PublicEventServiceImpl implements PublicService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getByPublic(Long eventId, HttpServletRequest request) {
-        Event event = getEventIfExists(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found."));
         boolean published = (event.getState() == StateEvent.PUBLISHED);
         if (!published) {
             throw new NotFoundException("Event not found.");
         }
-        EventFullDto eventFullDto = completeEventFullDto(event);
+        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+        Long confirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), StatusRequest.CONFIRMED);
+        Long eventFullDtoId = eventFullDto.getId();
+        Long views = statService.getViews(eventFullDtoId);
+        eventFullDto.setViews(views);
+        eventFullDto.setConfirmedRequests(confirmedRequests);
         statService.createHit(request);
         return eventFullDto;
     }
 
-    private Event getEventIfExists(Long eventId) {
+    /*private Event getEventIfExists(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found."));
-    }
+    }*/
 
-    private EventFullDto completeEventFullDto(Event event) {
+    /*private EventFullDto completeEventFullDto(Event event) {
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         Long confirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), StatusRequest.CONFIRMED);
-        completeWithViews(eventFullDto);
+        Long eventId = eventFullDto.getId();
+        Long views = statService.getViews(eventId);
+        eventFullDto.setViews(views);
         eventFullDto.setConfirmedRequests(confirmedRequests);
         return eventFullDto;
-    }
+    }*/
 
-    private void completeWithViews(EventDto eventDto) {
+    /*private void completeWithViews(EventDto eventDto) {
         Long eventId = eventDto.getId();
         Long views = statService.getViews(eventId);
         eventDto.setViews(views);
-    }
+    }*/
 
     private EventParamsFilt convertInputParams(EventParamsFiltDto paramsDto) {
         EventParamsFilt params;
@@ -109,11 +118,18 @@ public class PublicEventServiceImpl implements PublicService {
 
     private void getConfirmedRequest(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        List<ConfirmedRequest> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
-        Map<Long, Long> confirmedRequestsMap = confirmedRequests.stream()
-                .collect(Collectors.toMap(ConfirmedRequest::getEventId, ConfirmedRequest::getCount));
+        List<Object[]> confirmedRequests = requestRepository.findConfirmedRequest(eventIds);
+        Map<Long, Long> confirmedRequestsMap = new HashMap<>();
+
+        for (Object[] result : confirmedRequests) {
+            Long eventId = (Long) result[0];
+            Long count = (Long) result[1];
+            confirmedRequestsMap.put(eventId, count);
+        }
+
         events.forEach(event -> event.setConfirmedRequests(confirmedRequestsMap.getOrDefault(event.getId(), 0L)));
     }
+
 
     private Comparator<EventDto> getComparator(SortedEvent eventSort) {
         return EventDto.getComparator(eventSort);
