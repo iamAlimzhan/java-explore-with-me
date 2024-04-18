@@ -56,7 +56,6 @@ public class CategoryServiceImpl implements CategoryService {
         if (hasEvents) {
             throw new ConflictException("Невозможно удалить категорию, так как она связана с событиями");
         }
-
         categoryRepository.deleteById(catId);
     }
 
