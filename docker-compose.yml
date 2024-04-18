@@ -27,10 +27,10 @@ services:
       - POSTGRES_PASSWORD=123
   #      - TZ=Asia/Yekaterinburg
 
-  ewm-server:
+  ewm-service:
     build: ewm-server/
     image: main-service
-    container_name: ewm-server
+    container_name: ewm-service
     ports:
       - "8080:8080"
     depends_on:
