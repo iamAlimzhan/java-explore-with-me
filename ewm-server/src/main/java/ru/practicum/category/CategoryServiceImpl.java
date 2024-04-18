@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.event.Event;
 import ru.practicum.event.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -50,12 +49,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Long catId) {
-        Category category = checkIfExists(catId);
-        Event event = eventRepository.findAllByCategoryId(catId);
-        if (event != null) {
-            throw new ConflictException("Категория не удалена");
+        if (!categoryRepository.existsById(catId)) {
+            throw new NotFoundException("Категория не найдена");
         }
-        categoryRepository.delete(category);
+        boolean hasEvents = eventRepository.existsByCategoryId(catId);
+        if (hasEvents) {
+            throw new ConflictException("Невозможно удалить категорию, так как она связана с событиями");
+        }
+
+        categoryRepository.deleteById(catId);
     }
 
     private Category checkIfExists(long catId) {

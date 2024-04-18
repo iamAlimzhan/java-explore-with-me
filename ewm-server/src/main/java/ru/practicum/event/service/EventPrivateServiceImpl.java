@@ -26,9 +26,7 @@ import ru.practicum.user.User;
 import ru.practicum.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,8 +44,9 @@ public class EventPrivateServiceImpl implements EventPrivateService {
 
     @Override
     public List<EventShortDto> getPrivateList(Long userId, Integer from, Integer size) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Юзер не найден"));
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Юзер не найден");
+        }
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size);
         List<Event> eventList = eventRepository.findAllByInitiatorId(userId, pageable);
@@ -58,12 +57,16 @@ public class EventPrivateServiceImpl implements EventPrivateService {
 
     @Override
     public EventFullDto getPrivateEventDto(Long userId, Long eventId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Юзер не найден"));
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие не найдено"));
-        ;
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Юзер не найден");
+        }
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotFoundException("Событие не найдено");
+        }
+
+        Event event = eventRepository.getOne(eventId);
         updateConfirmedRequest(List.of(event));
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -103,8 +106,9 @@ public class EventPrivateServiceImpl implements EventPrivateService {
                 .orElseThrow(() -> new NotFoundException("Юзер не найден"));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие не найдено"));
-        if (event.getState() == StateEvent.PUBLISHED)
+        if (event.getState() == StateEvent.PUBLISHED) {
             throw new ConflictException("Невозможно обновить опубликованное событие");
+        }
         updateParamsEvent(event, updateRequest);
         if (updateRequest.getStateAction() != null) {
             switch (updateRequest.getStateAction()) {
@@ -130,7 +134,9 @@ public class EventPrivateServiceImpl implements EventPrivateService {
         List<Long> requestIdList = statusUpdateRequest.getRequestIds();
         EventRequestStatusUpdateResult resultUpdate = new EventRequestStatusUpdateResult();
         boolean isAllowed = event.getRequestModeration() && event.getParticipantLimit() > 0 && !requestIdList.isEmpty();
-        if (!isAllowed) return resultUpdate;
+        if (!isAllowed) {
+            return resultUpdate;
+        }
         List<Request> requestsToUpdate = requestRepository.findAllByIdIn(requestIdList);
         if (!requestsToUpdate.stream().allMatch(r -> r.getStatus() == RequestStatus.PENDING))
             throw new ConflictException("Невозможно изменить статус запроса");
@@ -146,10 +152,16 @@ public class EventPrivateServiceImpl implements EventPrivateService {
     }
 
     private void updateConfirmedRequest(List<Event> eventsList) {
-        eventsList.forEach(event -> {
-            Long count = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
-            event.setConfirmedRequests(count.intValue());
-        });
+        Map<Long, Long> сonfirmedRequestsMap = new HashMap<>();
+        List<Long> eventIds = new ArrayList<>();
+        eventsList.forEach(event -> eventIds.add(event.getId()));
+        List<Object[]> countsOfEventList = requestRepository.countConfirmedRequestsPerEvent(eventIds, RequestStatus.CONFIRMED);
+        countsOfEventList.forEach(counts -> сonfirmedRequestsMap.put((Long) counts[0], (Long) counts[1]));
+        for (Event event : eventsList) {
+            Long eventId = event.getId();
+            Long confirmedRequestsCount = сonfirmedRequestsMap.getOrDefault(eventId, 0L);
+            event.setConfirmedRequests(confirmedRequestsCount.intValue());
+        }
     }
 
     private void checkDateIsAfter(LocalDateTime date, Integer currentTime) {

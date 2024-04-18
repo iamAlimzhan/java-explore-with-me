@@ -239,11 +239,15 @@ public class EventAdminServiceImpl implements EventAdminService {
             LocalDateTime startDate = parseDateTime(paramsFiltre.getRangeStart(), LocalDateTime.now());
             LocalDateTime endDate = parseDateTime(paramsFiltre.getRangeEnd(), null);
             if (endDate != null && endDate.isBefore(startDate)) {
-                throw new ErrorRequestException("Неверные параметры фильтра диапазона времени");
+                throw new ErrorRequestException("Неверные параметры фильтра диапазона времени. Начальная дата " +
+                        paramsFiltre.getRangeStart() + " должна быть раньше или равна конечной даты " + paramsFiltre.getRangeEnd());
+
             }
             return EventMapper.toEventsParamsFiltre(paramsFiltre, startDate, endDate);
         } catch (UnsupportedEncodingException e) {
-            throw new ConflictException("Неверные параметры поиска");
+            throw new ConflictException("Неверные параметры поиска. Начальная дата " + paramsFiltre.getRangeStart() +
+                    " должна быть раньше конечной даты " + paramsFiltre.getRangeEnd());
+
         }
     }
 }

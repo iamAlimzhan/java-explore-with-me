@@ -1,7 +1,9 @@
 package ru.practicum.compilation;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.event.Event;
 import ru.practicum.event.EventRepository;
@@ -33,19 +35,18 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto getById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Компиляция не найдена"));
-        ;
         return CompilationMapper.toCompilationDto(compilation);
     }
 
     @Override
     public List<CompilationDto> getList(Boolean pinned, Integer from, Integer size) {
-        List<Compilation> compilations;
-        if (pinned != null) {
-            compilations = compilationRepository.findAll(PageRequest.of(from / size, size)).getContent();
-        } else {
-            compilations = compilationRepository.findAll(PageRequest.of(from / size, size)).getContent();
-        }
-        return compilations.stream().map(CompilationMapper::toCompilationDto).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Compilation> compilationsPage = compilationRepository.findByPinned(pinned, pageable);
+        List<Compilation> compilations = compilationsPage.getContent();
+
+        return compilations.stream()
+                .map(CompilationMapper::toCompilationDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -60,9 +61,10 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public void delete(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Компиляция не найдена"));
-        compilationRepository.delete(compilation);
+        if (!compilationRepository.existsById(compId)) {
+            throw new NotFoundException("Компиляция не найдена");
+        }
+        compilationRepository.deleteById(compId);
     }
 
     private void updateCompilation(Compilation compilation, UpdateCompilationRequest updateRequest) {
