@@ -18,15 +18,13 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Long countByEventIdAndStatus(Long eventId, RequestStatus statusRequest);
 
-    /*@Query("SELECT r.eventId, COUNT(r) FROM Request r WHERE r.eventId IN :eventIds AND r.status = :statusRequest"
-            + " GROUP BY r.eventId")
-    List<Object[]> countConfirmedRequestsPerEvent(List<Long> eventIds, RequestStatus statusRequest);*/
-
     @Query("SELECT r.eventId as eventId, COUNT(r) as count FROM Request r WHERE r.eventId IN :eventIds AND r.status = :statusRequest"
             + " GROUP BY r.eventId")
     List<ConfirmedRequestProjection> countConfirmedRequestsPerEvent(List<Long> eventIds, RequestStatus statusRequest);
     interface ConfirmedRequestProjection {
+
         Long getEventId();
         Long getCount();
+
     }
 }
