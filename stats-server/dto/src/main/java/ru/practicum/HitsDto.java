@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 public class HitsDto {
     private Long id;
     private String app;

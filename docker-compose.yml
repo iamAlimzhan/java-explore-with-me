@@ -12,7 +12,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/postgres
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=123
-#      - TZ=Asia/Almaty
+  #      - TZ=Asia/Yekaterinburg
 
   stats-db:
     image: postgres:14-alpine
@@ -25,17 +25,19 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=123
-#      - TZ=Asia/Almaty
+  #      - TZ=Asia/Yekaterinburg
 
-  ewm-server:
+  ewm-service:
     build: ewm-server/
     image: main-service
-    container_name: ewm-server
+    container_name: ewm-service
     ports:
       - "8080:8080"
     depends_on:
       - ewm-db
+      - stats-server
     environment:
+      - STATS_SERVER_URL=http://stats-server:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=123
