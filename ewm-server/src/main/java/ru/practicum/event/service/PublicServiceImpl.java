@@ -49,6 +49,7 @@ public class PublicServiceImpl implements PublicService {
         String remoteAdd = request.getRemoteAddr();
         LocalDateTime time = LocalDateTime.now();
         statsClient.postHits(app, requestURI, remoteAdd, time);
+
         return events.stream()
                 .map(EventMapper::toEventShortDto)
                 .sorted(EventShortDto.getComparator(params.getSort()))
