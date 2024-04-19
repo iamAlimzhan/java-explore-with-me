@@ -152,14 +152,14 @@ public class EventPrivateServiceImpl implements EventPrivateService {
     }
 
     private void updateConfirmedRequest(List<Event> eventsList) {
-        Map<Long, Long> confirmedRequestsMap = new HashMap<>();
         List<Long> eventIds = new ArrayList<>();
         eventsList.forEach(event -> eventIds.add(event.getId()));
-        List<Object[]> countsOfEventList = requestRepository.countConfirmedRequestsPerEvent(eventIds, RequestStatus.CONFIRMED);
-        countsOfEventList.forEach(counts -> confirmedRequestsMap.put((Long) counts[0], (Long) counts[1]));
+        Map<Long, RequestRepository.ConfirmedRequestProjection> map = requestRepository.countConfirmedRequestsPerEvent(eventIds, RequestStatus.CONFIRMED).stream()
+                .collect(Collectors.toMap(RequestRepository.ConfirmedRequestProjection::getEventId, Function.identity()));
         for (Event event : eventsList) {
             Long eventId = event.getId();
-            Long confirmedRequestsCount = confirmedRequestsMap.getOrDefault(eventId, 0L);
+            RequestRepository.ConfirmedRequestProjection projection = map.get(eventId);
+            Long confirmedRequestsCount = (projection != null) ? projection.getCount() : 0L;
             event.setConfirmedRequests(confirmedRequestsCount.intValue());
         }
     }
