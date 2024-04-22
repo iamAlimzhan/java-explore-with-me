@@ -11,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Builder
 public class CommentCreateDto {
-
     @NotBlank
     @Length(min = 10, max = 1000)
     private String text;
