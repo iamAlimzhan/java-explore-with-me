@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.CategoryDto;
 import ru.practicum.category.CategoryService;
 import ru.practicum.category.NewCategoryDto;
+import ru.practicum.comments.CommentCreateDto;
+import ru.practicum.comments.CommentDto;
+import ru.practicum.comments.service.CommentAdminService;
 import ru.practicum.compilation.CompilationDto;
 import ru.practicum.compilation.CompilationService;
 import ru.practicum.compilation.NewCompilationDto;
@@ -33,6 +36,7 @@ public class AdminController {
     private final CompilationService compilationService;
     private final EventAdminService eventService;
     private final UserService userService;
+    private final CommentAdminService commentAdminService;
 
     @PostMapping("/categories")
     @ResponseStatus(HttpStatus.CREATED)
@@ -99,5 +103,24 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
         userService.delete(userId);
+    }
+
+    //------------------------ Фича комментарии---------------
+
+    @GetMapping("/comments/{commentId}")
+    public CommentDto adminGetByCommentId(@PathVariable Long commentId) {
+        return commentAdminService.adminGetByCommentId(commentId);
+    }
+
+    @PatchMapping("/comments/{commentId}")
+    public CommentDto adminUpdateComment(@RequestBody @Valid CommentCreateDto commentCreateDto,
+                                         @PathVariable Long commentId) {
+        return commentAdminService.adminUpdateComment(commentCreateDto, commentId);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void adminDeleteComment(@PathVariable Long commentId) {
+        commentAdminService.adminDeleteComment(commentId);
     }
 }
