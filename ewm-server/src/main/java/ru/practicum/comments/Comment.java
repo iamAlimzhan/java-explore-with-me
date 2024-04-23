@@ -18,14 +18,18 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event eventId;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User userId;
+
     @Column(name = "text")
     private String text;
+
     @Column(name = "created")
     private LocalDateTime dateOfPost;
 }
