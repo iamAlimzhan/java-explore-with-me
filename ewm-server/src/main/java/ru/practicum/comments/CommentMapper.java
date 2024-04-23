@@ -16,7 +16,6 @@ public class CommentMapper {
                 .dateOfPost(comment.getDateOfPost())
                 .build();
     }
-
     public static List<CommentDto> toCommentDtoList(List<Comment> comments) {
         return comments.stream()
                 .map(CommentMapper::toCommentDto)
