@@ -1,8 +1,13 @@
 package ru.practicum.controller.private_controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.comments.CommentCreateDto;
+import ru.practicum.comments.CommentDto;
+import ru.practicum.comments.service.CommentPrivateService;
 import ru.practicum.event.EventFullDto;
 import ru.practicum.event.EventShortDto;
 import ru.practicum.event.NewEventDto;
@@ -14,14 +19,18 @@ import ru.practicum.request.ParticipationRequestDto;
 import ru.practicum.request.RequestService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/users")
+@Validated
 public class PrivateController {
+    private static final String PATTERN_DATE = ("yyyy-MM-dd HH:mm:ss");
     private final EventPrivateService eventService;
     private final RequestService requestService;
+    private final CommentPrivateService commentPrivateService;
 
     @GetMapping(value = "/{userId}/events")
     public List<EventShortDto> get(@PathVariable Long userId,
@@ -79,5 +88,47 @@ public class PrivateController {
     public ParticipationRequestDto cancel(@PathVariable Long userId,
                                           @PathVariable Long requestId) {
         return requestService.delete(userId, requestId);
+    }
+
+    //------------------------ Фича комментарии---------------
+    @PostMapping("/{userId}/comments/{eventId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto createComment(@RequestBody @Valid CommentCreateDto commentCreateDto,
+                                    @PathVariable Long userId,
+                                    @PathVariable Long eventId) {
+        return commentPrivateService.createComment(commentCreateDto, userId, eventId);
+    }
+
+    @PatchMapping("/{userId}/comments/{commentId}")
+    public CommentDto updateComment(@RequestBody @Valid CommentCreateDto commentCreateDto,
+                                    @PathVariable Long userId,
+                                    @PathVariable Long commentId) {
+        return commentPrivateService.updateComment(commentCreateDto, userId, commentId);
+    }
+
+    @GetMapping("/{userId}/comments/{commentId}")
+    public CommentDto getByCommentId(@PathVariable Long userId,
+                                     @PathVariable Long commentId) {
+        return commentPrivateService.getById(userId, commentId);
+    }
+
+    @GetMapping("/{userId}/comments")
+    public List<CommentDto> getCommentListByDateTime(@PathVariable(value = "userId") Long userId,
+                                                     @RequestParam(required = false)
+                                                     @DateTimeFormat(pattern = PATTERN_DATE)
+                                                     LocalDateTime start,
+                                                     @RequestParam(required = false)
+                                                     @DateTimeFormat(pattern = PATTERN_DATE)
+                                                     LocalDateTime end,
+                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                     @RequestParam(defaultValue = "10") Integer size) {
+        return commentPrivateService.getCommentListByDateTime(userId, start, end, from, size);
+    }
+
+    @DeleteMapping("/{userId}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable Long userId,
+                              @PathVariable Long commentId) {
+        commentPrivateService.deleteComment(userId, commentId);
     }
 }
